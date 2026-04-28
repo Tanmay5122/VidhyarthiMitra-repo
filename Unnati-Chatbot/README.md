@@ -1,3 +1,6 @@
+[![GitHub followers](https://img.shields.io/github/followers/yourusername?style=social)](https://github.com/yourusername)
+[![GitHub stars](https://img.shields.io/github/stars/yourusername?style=social)](https://github.com/yourusername)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=flat&logo=linkedin)](https://linkedin.com/in/yourprofile)
 # Unnati Chatbot 🤖
 
 > **AI-Powered Website Support Assistant** using n8n, LangChain, and Advanced LLMs
