@@ -1,0 +1,282 @@
+{
+  "name": "Unnati Chatbot",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        32
+      ],
+      "id": "b44ac3af-2a5a-4cdb-b90e-e91e2f9c71c7",
+      "name": "When chat message received",
+      "webhookId": "YOUR_WEBHOOK_ID_HERE"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatId }}{{ $json.message }}",
+        "options": {
+          "systemMessage": "You are Unnati, an expert Website Support Assistant.\n\nYou are a conversational chatbot that helps users in a clear, polite, and professional manner.\n\nTools available to you are :\nUse this tools to answer the query came from chatbot user.\n\n1. Send a Message in Gmail\nUse this tool to send emails to the customer support team or to draft and send emails to any requested email address based on user needs.\n\n2. RAG Questions Tool\nUse this tool to answer general education-related FAQ questions.\n\n3. Website Questions Tool\nUse this tool to answer detailed questions about the website, using deep internal website knowledge.\n\nResponse rules:\n\nAlways respond in clean, human-friendly Markdown\n\nUse proper line breaks (\\n) for readability\n\nDo NOT return JSON, schemas, or metadata\n\nDo NOT wrap responses in { }\n\nRespond naturally, like ChatGPT\n\nFormatting rules:\n\nif a scope appears where the request is not fulfil then say sorry and give alternate question regarding that question asked.\n\nIf the user asks for a comparison or a list of items, present the answer in a well-structured table\n\nEnsure tables have clear headings and evenly sized columns\n\nBehavior:\n\nBe polite, helpful, and professional\n\nChoose the correct tool based on the user's intent\n\nAsk clarifying questions only when necessary\n\nFocus on providing accurate and useful answers efficiently"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        272,
+        32
+      ],
+      "id": "51c7e931-e783-4c03-84cd-422740a7c395",
+      "name": "AI Agent",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.chatId }}",
+        "collectionName": "Memory",
+        "databaseName": "AIChatbot"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryMongoDbChat",
+      "typeVersion": 1,
+      "position": [
+        368,
+        288
+      ],
+      "id": "20e0cdb5-63f4-43d1-bdc5-c689c65b70c9",
+      "name": "MongoDB Chat Memory",
+      "credentials": {
+        "mongoDb": {
+          "id": "MONGODB_CREDENTIALS_ID",
+          "name": "MongoDB account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        112,
+        192
+      ],
+      "id": "15c7ac28-635b-489e-bb6a-e478d9e93b05",
+      "name": "Google Gemini Chat Model",
+      "executeOnce": true,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "GOOGLE_CREDENTIALS_ID",
+          "name": "Google Gemini API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Use this tool to get all FAQs from the knowledge base",
+        "url": "https://your-pinecone-endpoint.pinecone.io/assistant/chat/unnati",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "{{ $env.PINECONE_HEADER_NAME }}",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Name', ``, 'string') }}",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', ``, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        656,
+        272
+      ],
+      "id": "ab970c7d-d440-41aa-bfee-4cc1c54c9ce5",
+      "name": "Rag Questions"
+    },
+    {
+      "parameters": {
+        "sendTo": "your-support-email@example.com",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        1008,
+        240
+      ],
+      "id": "77ebf0bf-ba08-49c0-b0ab-85b33e811378",
+      "name": "Send a message in Gmail",
+      "webhookId": "YOUR_GMAIL_WEBHOOK_ID",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "GMAIL_CREDENTIALS_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Use this tool to answer detailed questions and FAQs related to the website, courses, cut-offs, exam dates and more.\n\nYou MUST output ONLY valid JSON.\nDo NOT use markdown, headings, bullet points, tables in markdown, or source sections.\nDo NOT include any text outside the JSON object.\n\nAllowed response formats ONLY:\n\nTABLE format (use when information can be represented in rows and columns):\n{\n  \"type\": \"table\",\n  \"columns\": [],\n  \"rows\": []\n}\n\nTEXT format (use when explanation or descriptive information is required):\n{\n  \"type\": \"text\",\n  \"content\": \"\"\n}\n\nRules:\n- Choose EXACTLY ONE format per response\n- NEVER mix table and text\n- Use TABLE for lists, cut-offs, comparisons, dates, fees, structured data\n- Use TEXT for FAQs, definitions, eligibility rules, processes, explanations\n- If data is missing or unavailable, use \"NA\"\n- If upstream tools return markdown or prose, you MUST convert it into one of the allowed JSON formats before responding\n\n",
+        "method": "POST",
+        "url": "https://api.perplexity.ai/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.PERPLEXITY_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"sonar-pro\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You must respond ONLY in valid JSON. No markdown, no explanations outside JSON.\\n\\nAllowed response formats:\\n\\n1. Table format (when data is structured):\\n{\\n  \\\"type\\\": \\\"table\\\",\\n  \\\"columns\\\": [],\\n  \\\"rows\\\": []\\n}\\n\\n2. Text format (when explanation is required):\\n{\\n  \\\"type\\\": \\\"text\\\",\\n  \\\"content\\\": \\\"clear, factual explanation\\\"\\n}\\n\\nRules:\\n- Choose ONLY ONE type\\n- Use table ONLY if data fits rows and columns\\n- Use text for definitions, eligibility explanations, processes\\n- If data is missing, use \\\"NA\\\"\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $json.website-search-question }}. Use only information from official website sources\"\n    }\n  ],\n  \"max_tokens\": 2048,\n  \"temperature\": 0.2\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        848,
+        272
+      ],
+      "id": "3bcfaa69-a4a0-4f70-a178-226e415c3a09",
+      "name": "Website questions"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-safeguard-20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        272,
+        240
+      ],
+      "id": "0ffa5107-e241-4762-8a8e-14ea1cff99b0",
+      "name": "Groq Chat Model",
+      "executeOnce": true,
+      "credentials": {
+        "groqApi": {
+          "id": "GROQ_CREDENTIALS_ID",
+          "name": "Groq account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When chat message received": [
+      {
+        "json": {},
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MongoDB Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Rag Questions": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Website questions": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "d71928e6-665d-4d43-a3d7-f8a9822a5370",
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "your-instance-id"
+  },
+  "id": "f2VQa4U6afRccpz9",
+  "tags": []
+}
