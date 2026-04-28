@@ -1,6 +1,9 @@
-[![GitHub followers](https://img.shields.io/github/followers/yourusername?style=social)](https://github.com/yourusername)
-[![GitHub stars](https://img.shields.io/github/stars/yourusername?style=social)](https://github.com/yourusername)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=flat&logo=linkedin)](https://linkedin.com/in/yourprofile)
+[![GitHub followers](https://img.shields.io/github/followers/yourusername?style=social)](https://github.com/tanmay5122)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-blue?style=flat&logo=linkedin)]([https://linkedin.com/in/yourprofile](https://www.linkedin.com/in/tanmay-walunj-b04a68337/))
+[![n8n](https://img.shields.io/badge/n8n-red?style=for-the-badge)](https://n8n.io)
+[![LangChain](https://img.shields.io/badge/LangChain-blue?style=for-the-badge)](https://langchain.com)
+[![MongoDB](https://img.shields.io/badge/MongoDB-green?style=for-the-badge)](https://mongodb.com)
+[![Google Gemini](https://img.shields.io/badge/Google%20Gemini-yellow?style=for-the-badge)](https://ai.google.dev)
 # Unnati Chatbot 🤖
 
 > **AI-Powered Website Support Assistant** using n8n, LangChain, and Advanced LLMs
